@@ -4,21 +4,24 @@ require 'rss/1.0'
 require 'rss/2.0'
 require 'open-uri'
 
-source = "http://www.bbc.co.uk/news/technology/rss" # url or local file
-content = "" # raw content of rss feed will be loaded here
+def get_rss(options={})
+   options[:source] ||= "http://www.bbc.co.uk/news/technology/rssxml" # url or local file
+   content = "" # raw content of rss feed will be loaded here
 
-begin
-   open(source) do |s| content = s.read end
-   rss = RSS::Parser.parse(content, false)
-rescue OpenURI::HTTPError => error
-   puts "Bad URL #{source}"
-   puts error
-   exit
+   begin
+      open(options[:source]) do |s| content = s.read end
+      rss = RSS::Parser.parse(content, false)
+   rescue OpenURI::HTTPError => error
+      puts "Bad URL #{options[:source]}"
+      puts error
+      exit
+   end
 end
 
 #When Calling file directly do something to demo functionality
 if __FILE__ == $0
    ## Use rss 
+   rss = get_rss()
    puts "Root values"
    print "RSS title: ", rss.channel.title, "\n"
    print "RSS link: ", rss.channel.link, "\n"
@@ -31,4 +34,5 @@ if __FILE__ == $0
    print "link of first item: ", rss.items[0].link, "\n"
    print "description of first item: ", rss.items[0].description, "\n"
    print "date of first item: ", rss.items[0].date, "\n"
+
 end
