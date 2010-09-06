@@ -42,10 +42,12 @@ end
 
 def get_time_run
 ## based on http://rubylearning.com/satishtalim/read_write_files.html
- if File.exists?('run.log') 
-   File.open('run.log', 'r') do |f|  
+ 
+ if File.exists?('run.time') 
+   File.open('run.time', 'r') do |f|  
       while line = f.gets  
-         @last_run = line  
+         @last_run = Time.at(line.to_i)
+
       end  
    end 
  end
@@ -54,27 +56,30 @@ def get_time_run
 end
 
 def set_run_time
-   if File.exists?("run.log")
-      File.delete("run.log")
+   if File.exists?("run.time")
+      File.delete("run.time")
    end
-   File.open('run.log', 'w') do |f2|  
-      f2.puts Time.now  
+   File.open('run.time', 'w') do |f2|  
+      f2.puts Time.now.to_i  
    end  
 end
 
 # Now for some RSS stuff
 rss = get_rss(options = {:source => "http://www.bbc.co.uk/news/technology/rss.xml"})
-(0...rss.items.size).to_a.reverse.each do |x|
-   url   = Shorturl.new(rss.items[x].link).get_shorturl
-   tweet = format_for_twitter( rss.items[x].title , url)
-   
+(0...rss.items.size).to_a.reverse.each do |item_x|
+
    #check date and if greater than last time ran send it
-   if (rss.items[x].date <=> get_time_run) == 1
+   if (rss.items[item_x].date <=> get_time_run) == 1
+      url   = Shorturl.new(rss.items[item_x].link).get_shorturl
+
+      tweet = format_for_twitter( rss.items[item_x].title , url)
+      
       client.update(tweet)
-      puts "Title:       " + rss.items[x].title.to_s
-      puts "Link:        " + rss.items[x].link.to_s
-      puts "Description: " + rss.items[x].description.to_s
-      puts "Date:        " + rss.items[x].date.to_s
+      
+      puts "Title:       " + rss.items[item_x].title.to_s
+      puts "Link:        " + rss.items[item_x].link.to_s
+      puts "Description: " + rss.items[item_x].description.to_s
+      puts "Date:        " + rss.items[item_x].date.to_s
       puts "Sent tweet:  " + tweet
       puts 
    end
