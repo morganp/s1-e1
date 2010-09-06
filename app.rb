@@ -15,6 +15,7 @@ require 'access_token'
 #Load rss parser
 require 'rss_parse'
 
+#Load ShortURL class
 require 'shorturl'
 
 # NOT SHOWN: granting access to twitter on website
@@ -64,23 +65,21 @@ end
 # Now for some RSS stuff
 rss = get_rss(options = {:source => "http://www.bbc.co.uk/news/technology/rss.xml"})
 (0...rss.items.size).to_a.reverse.each do |x|
-   print "title:       ", rss.items[x].title, "\n"
-   print "link:        ", rss.items[x].link, "\n"
-   print "description: ", rss.items[x].description, "\n"
-   print "date:        ", rss.items[x].date, "\n"
-
-   url = Shorturl.new(rss.items[x].link).get_shorturl
-   
+   url   = Shorturl.new(rss.items[x].link).get_shorturl
    tweet = format_for_twitter( rss.items[x].title , url)
    
    #check date and if greater than last time ran send it
    if (rss.items[x].date <=> get_time_run) == 1
       client.update(tweet)
-      puts "Sent tweet: " + tweet
+      puts "Title:       " + rss.items[x].title.to_s
+      puts "Link:        " + rss.items[x].link.to_s
+      puts "Description: " + rss.items[x].description.to_s
+      puts "Date:        " + rss.items[x].date.to_s
+      puts "Sent tweet:  " + tweet
+      puts 
    end
-   puts 
 
 end
-   #Set run time after itterarting all tweets so first does not block all of the following
+   #Set run time after itterarting all tweets so first does not block the following
    set_run_time
 
