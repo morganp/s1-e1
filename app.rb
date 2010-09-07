@@ -66,20 +66,22 @@ end
 
 # Now for some RSS stuff
 rss = get_rss(options = {:source => "http://www.bbc.co.uk/news/technology/rss.xml"})
-(0...rss.items.size).to_a.reverse.each do |item_x|
+
+items = rss.items.sort_by { |item| item.date }
+(0...items.size).each do |item_x|
 
    #check date and if greater than last time ran send it
-   if (rss.items[item_x].date <=> get_time_run) == 1
-      url   = Shorturl.new(rss.items[item_x].link).get_shorturl
+   if (items[item_x].date <=> get_time_run) == 1
+      url   = Shorturl.new(items[item_x].link).get_shorturl
 
-      tweet = format_for_twitter( rss.items[item_x].title , url)
+      tweet = format_for_twitter( items[item_x].title , url)
       
       client.update(tweet)
       
-      puts "Title:       " + rss.items[item_x].title.to_s
-      puts "Link:        " + rss.items[item_x].link.to_s
-      puts "Description: " + rss.items[item_x].description.to_s
-      puts "Date:        " + rss.items[item_x].date.to_s
+      puts "Title:       " + items[item_x].title.to_s
+      puts "Link:        " + items[item_x].link.to_s
+      puts "Description: " + items[item_x].description.to_s
+      puts "Date:        " + items[item_x].date.to_s
       puts "Sent tweet:  " + tweet
       puts 
    end
