@@ -6,87 +6,55 @@
 # Then run 'ruby get_keys.rb'
 
 require 'rubygems'
-require 'twitter'
-
-#Load keys
-require 'consumer_keys'
-require 'access_token'
+require File.dirname(__FILE__) + '/tweeter'
 
 #Load rss parser
-require 'rss_parse'
+require  File.dirname(__FILE__) + '/rss_feed'
+require  File.dirname(__FILE__) + '/time_stamp'
 
 #Load ShortURL class
-require 'shorturl'
+require  File.dirname(__FILE__) + '/shorturl'
 
-# NOT SHOWN: granting access to twitter on website
-# and using request token to generate access token
-# This is down by reading and completing consumer_keys.rb and running get_keys.rb
-oauth = Twitter::OAuth.new(cKey, cSecret)
-oauth.authorize_from_access(aToken, aSecret)
+module TechNews
+   class Core
+      def initialize
+         ####################################################################
+         @tweeter    =  TechNews::Tweeter.new
+         ####################################################################
+         @time_stamp =  TechNews::TimeStamp.new
+         ####################################################################
+         # Now for some RSS stuff
+         @rss        = TechNews::RssFeed.new(
+               options = {
+                  :source => "http://www.bbc.co.uk/news/technology/rss.xml"
+               })
+         ####################################################################
+         
+         @rss.rss_feed_sort_date.each do |item|
+            
+            #check date and if greater than last time ran send it
+            if (item.date <=> @time_stamp.get_time) == 1
+               url   = Shorturl.new( item.link).get_shorturl
 
+               @tweeter.update_with_url(  item.title, url )
+               
+               puts "Title:       " + item.title.to_s
+               puts "Link:        " + item.link.to_s
+               puts "Description: " + item.description.to_s
+               puts "Date:        " + item.date.to_s
+               puts "Sent tweet:  " + @tweeter.last_tweet
+               puts 
+            end
 
-client = Twitter::Base.new(oauth)
-#client.friends_timeline.each  { |tweet| puts tweet.inspect }
-#client.user_timeline.each     { |tweet| puts tweet.text }
-#client.replies.each           { |tweet| puts tweet.inspect }
-#client.update('Helloworld!')
+         end
+         #Set run time after itterarting all tweets so first does not block the following
+         @time_stamp.set_time
 
-def format_for_twitter(msg, url)
-   if (msg.length + url.length + 1) > 140
-      #TODO find simpe way to split message on last space before cur len
-      cut_msg_len = 140 -  url.length - 4
-      msg = msg[0...cut_msg_len] + "..."
+      end #initialize   
    end
-   return msg + " " + url
 end
 
-def get_time_run
-## based on http://rubylearning.com/satishtalim/read_write_files.html
- 
- if File.exists?('run.time') 
-   File.open('run.time', 'r') do |f|  
-      while line = f.gets  
-         @last_run = Time.at(line.to_i)
-
-      end  
-   end 
- end
- #Nice default if anything above failed
- @last_run ||= Time.at(0) 
+if $0 == __FILE__
+   x = TechNews::Core.new
 end
-
-def set_run_time
-   if File.exists?("run.time")
-      File.delete("run.time")
-   end
-   File.open('run.time', 'w') do |f2|  
-      f2.puts Time.now.to_i  
-   end  
-end
-
-# Now for some RSS stuff
-rss = get_rss(options = {:source => "http://www.bbc.co.uk/news/technology/rss.xml"})
-
-items = rss.items.sort_by { |item| item.date }
-(0...items.size).each do |item_x|
-
-   #check date and if greater than last time ran send it
-   if (items[item_x].date <=> get_time_run) == 1
-      url   = Shorturl.new(items[item_x].link).get_shorturl
-
-      tweet = format_for_twitter( items[item_x].title , url)
-      
-      client.update(tweet)
-      
-      puts "Title:       " + items[item_x].title.to_s
-      puts "Link:        " + items[item_x].link.to_s
-      puts "Description: " + items[item_x].description.to_s
-      puts "Date:        " + items[item_x].date.to_s
-      puts "Sent tweet:  " + tweet
-      puts 
-   end
-
-end
-   #Set run time after itterarting all tweets so first does not block the following
-   set_run_time
 
