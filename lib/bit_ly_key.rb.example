@@ -1,0 +1,15 @@
+# Register at [1] and get api key [2]
+# [1]: http://bit.ly
+# [2]: http://bit.ly/a/your_api_key
+
+module TechNews
+   class BitLyKey
+      attr_reader :login, :apiKey
+
+      def initialize
+         @login  = ""
+         @apiKey = ""
+      end
+
+   end
+end
