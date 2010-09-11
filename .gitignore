@@ -1,3 +1,6 @@
 *.swp
+consumer_keys.rb
 access_token.rb
 run.log
+run.time
+bit_ly_key.rb
