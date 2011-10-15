@@ -9,11 +9,14 @@ module TechNews
       def initialize
          @login  = ""
          @apiKey = ""
+<<<<<<< HEAD
 
          if @login == "" or @apiKey == ""
             puts "You need to register with bit.ly foran Login name and api key"
             puts "Please configure #{__FILE__}"
          end
+=======
+>>>>>>> refs/heads/code_clean
       end
 
    end

@@ -1,5 +1,11 @@
 *.swp
+consumer_keys.rb
 access_token.rb
 run.log
+<<<<<<< HEAD
 lib/bit_ly_key.rb
 consumer_keys.rb
+=======
+run.time
+bit_ly_key.rb
+>>>>>>> refs/heads/code_clean

@@ -7,12 +7,6 @@ require 'consumer_keys'
 #Best Example
 # http://oauth.rubyforge.org/rdoc/classes/OAuth/Consumer.html
 
-# Consumer Key
-#cKey = "function call returns string in consumer_keys.rb"
-#
-# Consumer Secret
-#cSecret = "function call returns string in consumer_keys.rb"
-
 consumer = OAuth::Consumer.new(
   cKey,
   cSecret,
@@ -34,7 +28,6 @@ access_token = request_token.get_access_token(:oauth_verifier => pin)
 
 puts "Access Token  : " + access_token.token
 puts "Access Secret : " + access_token.secret
-#puts "Access URL    : " + access_token.authorize_url
 
 if File.exists?("access_token.rb")
    File.delete("access_token.rb")
